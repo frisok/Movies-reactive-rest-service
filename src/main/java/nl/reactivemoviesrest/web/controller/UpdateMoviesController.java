@@ -1,5 +1,6 @@
 package nl.reactivemoviesrest.web.controller;
 
+import com.google.common.base.Stopwatch;
 import nl.reactivemoviesrest.service.movie.MovieScraperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/updatemovies")
-public class CollectMoviesController {
+public class UpdateMoviesController {
 
 
     @Autowired
@@ -20,8 +21,9 @@ public class CollectMoviesController {
 
     @GetMapping
     public String updateAllMovies() {
-        movieScraperService.scrapeMovies();
-        return "Movies updated";
+        final Stopwatch stopwatch = Stopwatch.createStarted();
+        movieScraperService.updateMovies();
+        return "Movies updated. Update took: " + stopwatch.stop() + " ms";
     }
 
 }

@@ -3,6 +3,8 @@ package nl.reactivemoviesrest.service.movie;
 import nl.reactivemoviesrest.data.document.Cinema;
 import nl.reactivemoviesrest.data.document.Movie;
 import nl.reactivemoviesrest.data.document.Screening;
+import nl.reactivemoviesrest.util.MoviesDateUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -19,12 +21,12 @@ import java.util.stream.Collectors;
 @Service
 public class HtmlToMovieConverter {
 
-    public static final String MOVIE_CONTAINER_CLASS = "city-movie";
-    public static final String CINIMAS_CONTAINER_CLASS = "hall-container";
-    public static final String CINEMA_TITLE_CLASS = "cinema-link";
-    public static final String ATTRIBUTE_KEY_ITEM_PROP = "itemprop";
-    public static final String ATTRIBUTE_KEY_CONTENT = "content";
-    public static final String ATTRIBUTE_VALUE_START_DATE = "startDate";
+    private static final String MOVIE_CONTAINER_CLASS = "city-movie";
+    private static final String CINIMAS_CONTAINER_CLASS = "hall-container";
+    private static final String CINEMA_TITLE_CLASS = "cinema-link";
+    private static final String ATTRIBUTE_KEY_ITEM_PROP = "itemprop";
+    private static final String ATTRIBUTE_KEY_CONTENT = "content";
+    private static final String ATTRIBUTE_VALUE_START_DATE = "startDate";
 
 
     public List<Movie> convert(final Document htmlDocument) {
@@ -34,7 +36,7 @@ public class HtmlToMovieConverter {
 
         final List<Movie> movieDocuments = singleMovieElements
                 .stream()
-                .map(el -> convertToMovieDocument(el, city))
+                .map(s -> convertToMovieDocument(s, city))
                 .collect(Collectors.toList());
 
         return movieDocuments;
@@ -42,10 +44,8 @@ public class HtmlToMovieConverter {
 
 
     private Movie convertToMovieDocument(final Element singleMovieElement, final String city) {
-
         final Movie movie = convertMovie(singleMovieElement);
         movie.setScreenings(convertScreenings(singleMovieElement, city));
-
         return movie;
     }
 
@@ -55,7 +55,7 @@ public class HtmlToMovieConverter {
 
         final Optional<String> titleElement = singleMovieElement.getElementsByClass(CINEMA_TITLE_CLASS)
                 .stream()
-                .map(el -> el.text())
+                .map(s -> s.text())
                 .findFirst();
         movie.setTitle(titleElement.isPresent() ? titleElement.get() : null);
 
@@ -104,11 +104,12 @@ public class HtmlToMovieConverter {
     private Screening buildScreening(final String startDateTimestring, final Cinema cinema) {
 
         Screening screening = null;
+        final String formattedStartDateTimeString = MoviesDateUtil.validateAndClearOfTimezone(startDateTimestring);
 
-        if (startDateTimestring != null && startDateTimestring.contains("T") && startDateTimestring.contains("+")) {
+        if (StringUtils.isNotBlank(formattedStartDateTimeString)) {
             screening = new Screening();
             screening.setCinema(cinema);
-            screening.setStartDateTime(startDateTimestring);
+            screening.setStartDateTime(formattedStartDateTimeString);
         }
 
         return screening;

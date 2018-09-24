@@ -36,7 +36,7 @@ public class HtmlToMovieConverterTest {
     @Test
     public void shouldConvertHtmlToMovieList() throws IOException {
 
-        final Document html = Jsoup.parse(new File("/home/frisokulk/Development/playground/rest/reactive-movies-rest/src/main/resources/filmladder_amsterdam_page_20180905.txt"), "UTF-8");
+        final Document html = Jsoup.parse(new File("src/test/resources/filmladder_amsterdam_page_20180905.txt"), "UTF-8");
 
         final List<Movie> result = htmlToMovieConverter.convert(html);
 
@@ -45,9 +45,9 @@ public class HtmlToMovieConverterTest {
 
 
     @Test
-    public void alleConvertedShouldUnique() throws IOException {
+    public void alleConvertedScreeningsShouldUnique() throws IOException {
 
-        final Document html = Jsoup.parse(new File("/home/frisokulk/Development/playground/rest/reactive-movies-rest/src/main/resources/filmladder_amsterdam_page_20180905.txt"), "UTF-8");
+        final Document html = Jsoup.parse(new File("src/test/resources/filmladder_amsterdam_page_20180905.txt"), "UTF-8");
 
         final List<Movie> result = htmlToMovieConverter.convert(html);
 

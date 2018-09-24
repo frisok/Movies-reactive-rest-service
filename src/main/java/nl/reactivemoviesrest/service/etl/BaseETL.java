@@ -1,7 +1,7 @@
 package nl.reactivemoviesrest.service.etl;
 
 /**
- * Base implementations of Extract/Transform/Load pattern
+ * Base implementation of Extract/Transform/Load pattern
  */
 public abstract class BaseETL<I, E, T> implements ETL<I,E, T> {
 
