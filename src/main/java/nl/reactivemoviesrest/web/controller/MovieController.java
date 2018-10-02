@@ -28,7 +28,7 @@ public class MovieController {
 
     @GetMapping("/{city}")
     public Flux<Movie> findByCity(@PathVariable("city") String city) {
-        return movieRepository.findByScreeningsCinemaCity(city);
+         return movieRepository.findByScreeningsCinemaCity(city);
     }
 
 

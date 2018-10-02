@@ -1,6 +1,5 @@
 package nl.reactivemoviesrest.service.movie;
 
-import com.google.common.base.Stopwatch;
 import lombok.extern.slf4j.Slf4j;
 import nl.reactivemoviesrest.data.document.Movie;
 import nl.reactivemoviesrest.data.repository.MovieRepository;
@@ -29,8 +28,11 @@ public class MovieScraperService extends BaseETL<String, Document, List<Movie>> 
 
     @Autowired
     private HtmlToMovieConverter htmlToMovieConverter;
+
     @Autowired
     private MovieRepository movieRepository;
+
+    @Autowired MovieDetailsRESTService movieDetailsRESTService;
 
 
     public void updateMovies() {
@@ -60,7 +62,14 @@ public class MovieScraperService extends BaseETL<String, Document, List<Movie>> 
 
     @Override
     public List<Movie> transform(Document extractedData) {
-        return htmlToMovieConverter.convert(extractedData);
+
+        final List<Movie> result = htmlToMovieConverter.convert(extractedData);
+
+        for (Movie movie : result) {
+            movie.setMovieDetails(movieDetailsRESTService.extractMovieDetailsByTitle(movie.getTitle()));
+        }
+
+        return result;
     }
 
     @Override

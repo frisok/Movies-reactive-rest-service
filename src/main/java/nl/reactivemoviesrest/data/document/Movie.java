@@ -22,15 +22,9 @@ public class Movie {
 
     private String title;
 
-    private String description;
-
-    private int duration;
-
-    private int year;
+    private MovieDetails movieDetails;
 
     private String trailerLink;
 
     private List<Screening> screenings;
-
-
 }

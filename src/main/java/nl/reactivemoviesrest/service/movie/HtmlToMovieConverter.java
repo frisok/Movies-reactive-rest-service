@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,6 +84,8 @@ public class HtmlToMovieConverter {
             }
         }
 
+        sortScreeningsByStartDateTimeAscending(screenings);
+
         return screenings;
     }
 
@@ -113,6 +116,21 @@ public class HtmlToMovieConverter {
         }
 
         return screening;
+
+    }
+
+    private void sortScreeningsByStartDateTimeAscending(List<Screening> screenings) {
+
+        Collections.sort(screenings, (s1, s2) -> {
+
+            if (s1 == null || s1.getStartDateTime() == null) {
+                return -1;
+            } else if (s2 == null || s2.getStartDateTime() == null) {
+                return 1;
+            } else {
+                return MoviesDateUtil.parse(s1.getStartDateTime()).before(MoviesDateUtil.parse(s2.getStartDateTime())) ? -1 : 1;
+            }
+        });
 
     }
 
