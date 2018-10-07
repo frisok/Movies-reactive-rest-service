@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * ETL service that extracts movie detials from OMDB REST service
+ * Service that extracts movie detials from OMDB REST service
  */
 @Log4j2
 @Service
 public class MovieDetailsRESTService {
 
 
-    @Value("movie.details.rest.url:http://www.omdbapi.com/?i=tt3896198&apikey=41fbe576&plot=full&t=A+Star+Is+Born")
+    @Value("movie.details.rest.url:http://www.omdbapi.com/?i=tt3896198&apikey=41fbe576&plot=full&t=")
     private String movieDetailsRestUrl;
 
 
