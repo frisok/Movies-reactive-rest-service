@@ -21,6 +21,9 @@ public class UpdateMoviesController {
     private MovieScraperService movieScraperService;
 
 
+    /**
+     * Example request: curl -XPOST -H 'Authorization: 95de3112-59f6-4851-a072-d12d83fa077a' http://localhost:8080/updatemovies
+     */
     @PostMapping
     public HttpEntity<String> updateAllMovies() {
         final Stopwatch stopwatch = Stopwatch.createStarted();
