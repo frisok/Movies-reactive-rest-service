@@ -1,6 +1,6 @@
 package nl.reactivemoviesrest.service.user;
 
-import nl.reactivemoviesrest.data.entity.User;
+import nl.reactivemoviesrest.data.document.User;
 
 import java.util.Optional;
 

@@ -14,7 +14,6 @@ import java.io.IOException;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.StringUtils.removeStart;
 
 
 /**
@@ -27,9 +26,8 @@ final class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFi
     }
 
     @Override
-    public Authentication attemptAuthentication(
-            final HttpServletRequest request,
-            final HttpServletResponse response) {
+    public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response) {
+
         final String param = ofNullable(request.getHeader(AUTHORIZATION))
                 .orElse(request.getParameter("t"));
 
@@ -38,16 +36,18 @@ final class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFi
                 .orElseThrow(() -> new BadCredentialsException("Missing Authentication Token"));
 
         final Authentication auth = new UsernamePasswordAuthenticationToken(token, token);
+
         return getAuthenticationManager().authenticate(auth);
     }
 
     @Override
-    protected void successfulAuthentication(
-            final HttpServletRequest request,
-            final HttpServletResponse response,
-            final FilterChain chain,
-            final Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(final HttpServletRequest request,
+                                            final HttpServletResponse response,
+                                            final FilterChain chain,
+                                            final Authentication authResult) throws IOException, ServletException {
+
         super.successfulAuthentication(request, response, chain, authResult);
         chain.doFilter(request, response);
     }
+
 }

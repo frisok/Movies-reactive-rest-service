@@ -4,7 +4,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,24 +23,25 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
     private static final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
             new AntPathRequestMatcher("/movies/**"),
             new AntPathRequestMatcher("/login/**")
     );
+
     private static final RequestMatcher PROTECTED_URLS = new NegatedRequestMatcher(PUBLIC_URLS);
 
-    private TokenAuthenticationProvider provider;
+    private TokenAuthenticationProvider authenticationProvider;
 
-    public SecurityConfiguration(final TokenAuthenticationProvider provider) {
+    public SecurityConfiguration(final TokenAuthenticationProvider authenticationProvider) {
         super();
-        this.provider = requireNonNull(provider);
+        this.authenticationProvider = requireNonNull(authenticationProvider);
     }
 
     @Override
     protected void configure(final AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(provider);
+        auth.authenticationProvider(authenticationProvider);
     }
 
     @Override
@@ -56,11 +56,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(STATELESS)
                 .and()
                 .exceptionHandling()
-                // this entry point handles when you request a protected page and you are not yet
-                // authenticated
                 .defaultAuthenticationEntryPointFor(forbiddenEntryPoint(), PROTECTED_URLS)
                 .and()
-                .authenticationProvider(provider)
+                .authenticationProvider(authenticationProvider)
                 .addFilterBefore(restAuthenticationFilter(), AnonymousAuthenticationFilter.class)
                 .authorizeRequests()
                 .requestMatchers(PROTECTED_URLS)
