@@ -13,6 +13,6 @@ public interface UserRepository extends ReactiveMongoRepository<User, String> {
 
     Mono<User> findByUsernameAndPassword(String username, String password);
 
-    Mono<User> findByAuthenticationToken(String authenticationToken);
+    Mono<User> findByAuthenticationTokenToken(String authenticationToken);
 
 }

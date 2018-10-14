@@ -3,6 +3,7 @@ package nl.reactivemoviesrest.security;
 
 import lombok.AllArgsConstructor;
 import nl.reactivemoviesrest.service.user.UserAuthenticationService;
+import nl.reactivemoviesrest.util.MoviesDateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -34,6 +36,8 @@ final class TokenAuthenticationProvider extends AbstractUserDetailsAuthenticatio
                 .ofNullable(token)
                 .map(String::valueOf)
                 .flatMap(userAuthenticationService::findByToken)
+                .filter(u -> u.getAuthenticationToken().getExpiryDate() != null && MoviesDateUtil.convertToISODate(new Date()).before(u.getAuthenticationToken().getExpiryDate()))
                 .orElseThrow(() -> new UsernameNotFoundException("Cannot find user with authentication token=" + token));
     }
+
 }

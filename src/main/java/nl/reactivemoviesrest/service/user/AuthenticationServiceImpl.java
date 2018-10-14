@@ -1,11 +1,14 @@
 package nl.reactivemoviesrest.service.user;
 
 import lombok.AllArgsConstructor;
+import nl.reactivemoviesrest.data.document.AuthenticationToken;
 import nl.reactivemoviesrest.data.document.User;
 import nl.reactivemoviesrest.data.repository.UserRepository;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,15 +32,15 @@ public class AuthenticationServiceImpl implements UserAuthenticationService {
     }
 
     private Optional<String> createTokenAndUpdateUser(User user) {
-        final String authenticationToken = UUID.randomUUID().toString();
-        user.setAuthenticationToken(authenticationToken);
+        final String token = UUID.randomUUID().toString();
+        user.setAuthenticationToken(new AuthenticationToken(token, DateUtils.addHours(new Date(), 1)));
         userRepository.save(user).block();
-        return Optional.of(authenticationToken);
+        return Optional.of(token);
     }
 
     @Override
     public Optional<User> findByToken(final String token) {
-        return Optional.ofNullable(userRepository.findByAuthenticationToken(token).block());
+        return Optional.ofNullable(userRepository.findByAuthenticationTokenToken(token).block());
     }
 
 }

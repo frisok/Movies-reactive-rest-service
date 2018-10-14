@@ -18,7 +18,7 @@ import java.util.Collection;
 @Document(collection = "user")
 public class User implements UserDetails {
 
-    //db.user.insert({username:"admin", password:"admin",accountNonExpired:true,accountNonLocked:true,credentialsNonExpired:true,enabled:true,authenticationToken:""});
+    //db.user.insert({username:"admin", password:"admin",accountNonExpired:true,accountNonLocked:true,credentialsNonExpired:true,enabled:true,authenticationToken:{expiryDate:new Date("2018-01-01T09:00:00"),authenticationToken:""}});
 
     @Id
     private String id;
@@ -29,6 +29,6 @@ public class User implements UserDetails {
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;
     private Collection<? extends GrantedAuthority> authorities = new ArrayList<>();
-    private String authenticationToken;
+    private AuthenticationToken authenticationToken;
 
 }

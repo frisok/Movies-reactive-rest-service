@@ -83,7 +83,7 @@ public class MoviesDateUtilTest {
     }
 
     @Test
-    public void shouldvalidateAndClearOfTimezone(){
+    public void shouldvalidateAndClearOfTimezone() {
 
         final String source = "2018-09-24T19:10:05+02:00";
 
@@ -93,7 +93,7 @@ public class MoviesDateUtilTest {
     }
 
     @Test
-    public void shouldNotvalidateAndClearOfTimezone(){
+    public void shouldNotvalidateAndClearOfTimezone() {
 
         final String source1 = "2018-09-24";
         final String source2 = null;
