@@ -1,38 +1,46 @@
 package nl.reactivemoviesrest.web.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import nl.reactivemoviesrest.data.document.Movie;
 import nl.reactivemoviesrest.data.repository.MovieRepository;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import java.util.Date;
+
+import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
 
 /**
  *
  */
 @RestController
 @RequestMapping("/movies")
+@Slf4j
 public class MovieController {
-
 
     @Autowired
     private MovieRepository movieRepository;
 
 
     @GetMapping()
-    public Flux<Movie> findAll() {
-        return movieRepository.findAll();
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<Flux<Movie>> findAll() {
+        return new ResponseEntity(movieRepository.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{city}")
-    public Flux<Movie> findByCity(@PathVariable("city") String city) {
-        return movieRepository.findByScreeningsCinemaCity(city);
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<Flux<Movie>> findByCity(@PathVariable("city") String city) {
+        final Flux<Movie> result = StringUtils.equalsIgnoreCase(city, "all") ? movieRepository.findAll() : movieRepository.findByScreeningsCinemaCity(city);
+        return new ResponseEntity(result, HttpStatus.OK);
     }
 
     /**
@@ -43,15 +51,38 @@ public class MovieController {
      * @return
      */
     @GetMapping("/search")
-    public Flux<Movie> findByFilter(@RequestParam("title") String title,
-                                    @RequestParam("city") String city,
-                                    @RequestParam("start_date") @DateTimeFormat(pattern = "dd-MM-yyyy") Date startDate,
-                                    @RequestParam("end_date") @DateTimeFormat(pattern = "dd-MM-yyyy") Date endDate,
-                                    @RequestParam("child_friendly") boolean childFriendly,
-                                    @RequestParam("distance") int distance,
-                                    @RequestParam("location") String location) {
+    public Flux<Movie> findByFilter(@RequestParam(value = "title", required = false) String title,
+                                    @RequestParam(value = "city", required = false) String city,
+                                    @RequestParam(value = "start_date", required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") Date startDate,
+                                    @RequestParam(value = "end_date", required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") Date endDate,
+                                    @RequestParam(value = "child_friendly", required = false) boolean childFriendly,
+                                    @RequestParam(value = "distance", required = false) int distance,
+                                    @RequestParam(value = "location", required = false) String location) {
         return movieRepository.findByScreeningsCinemaCity(city);
     }
 
+    /**
+     * Example request url: http://localhost:8080/movies/title?title=wom
+     *
+     * @param title
+     * @return
+     */
+    @GetMapping("/title")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<Flux<Movie>> findByTitle(@RequestParam("title") String title) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        final Movie probe = new Movie();
+        probe.setTitle(title);
+        ExampleMatcher matcher = ExampleMatcher.matching()
+                .withMatcher("title", contains().ignoreCase());
+        final Flux<Movie> result = movieRepository.findAll(Example.of(probe, matcher));
+
+        log.info(String.format("'findByFilter' took %s ms", stopWatch.getTime()));
+        stopWatch.stop();
+
+        return new ResponseEntity(result, HttpStatus.OK);
+    }
 
 }

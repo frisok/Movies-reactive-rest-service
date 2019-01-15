@@ -1,6 +1,6 @@
 #MongoDB <--> Spring Data
 https://docs.spring.io/spring-data/mongodb/docs/2.0.8.RELEASE/reference/html/#requirements
-      --> Spring Data MongoDb v.1.10+ supprots MongoDB 3.4
+      --> Spring Data MongoDb v.1.10+ supports MongoDB 3.4
       --> Spring Data MongoDb v.2.0+ has reactive MongoDB support
 
 Basic Spring Data configuration MongodDB:  https://www.baeldung.com/spring-data-mongodb-reactive
@@ -8,6 +8,7 @@ Basic Spring Data configuration MongodDB:  https://www.baeldung.com/spring-data-
 #MongoDB
 System requirements: https://docs.mongodb.com/manual/installation/#tutorial-installation
 installation community version on Debian: https://docs.mongodb.com/v3.4/tutorial/install-mongodb-on-debian/
+installation community version on Ubuntu https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
 
 #Jsoup scrapper
 https://jsoup.org/cookbook/extracting-data/dom-navigation
