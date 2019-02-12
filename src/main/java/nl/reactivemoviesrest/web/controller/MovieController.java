@@ -8,11 +8,14 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Date;
 
@@ -42,6 +45,24 @@ public class MovieController {
         final Flux<Movie> result = StringUtils.equalsIgnoreCase(city, "all") ? movieRepository.findAll() : movieRepository.findByScreeningsCinemaCity(city);
         return new ResponseEntity(result, HttpStatus.OK);
     }
+
+    @GetMapping("/paginated")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<Flux<Movie>> findPaginatedByCity(@RequestParam(value = "city", required = true) String city,
+                                                           @RequestParam(value = "pageIndex", required = true) int pageIndex,
+                                                           @RequestParam(value = "pageSize", required = true) int pageSize) {
+        final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize);
+        final Flux<Movie> result = StringUtils.equalsIgnoreCase(city, "all") ? movieRepository.findByScreeningsCinemaCityNot(city, pageRequest) : movieRepository.findByScreeningsCinemaCity(city, pageRequest);
+        return new ResponseEntity(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/count")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public ResponseEntity<Mono<Long>> countByCity(@RequestParam(value = "city", required = true) String city) {
+        final Mono<Long> result = StringUtils.equalsIgnoreCase(city, "all") ? movieRepository.countByScreeningsCinemaCityNot(city) : movieRepository.countByScreeningsCinemaCity(city);
+        return new ResponseEntity(result, HttpStatus.OK);
+    }
+
 
     /**
      * Example request url: http://localhost:8080/movies/search?title=title&city=rotterdam&start_date=01-01-2018&end_date=01-01-2019&child_friendly=false&distance=10&location=somelocation
