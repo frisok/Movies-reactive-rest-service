@@ -4,13 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import nl.reactivemoviesrest.data.document.Movie;
 import nl.reactivemoviesrest.data.repository.MovieRepository;
 import nl.reactivemoviesrest.service.etl.BaseETL;
+import nl.reactivemoviesrest.service.moviesdetails.MovieDetailsRESTService;
+import nl.reactivemoviesrest.service.screening.ScreeningScraperService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,10 +22,9 @@ import java.util.List;
 public class MovieScraperService extends BaseETL<String, Document, List<Movie>> {
 
 
-    private static final List<String> cities = Arrays.asList(new String[]{"amsterdam", "rotterdam", "utrecht"});
     private static final String ERROR_COLLECTING_MOVIE_DATA = "Error collecting movie data";
     private static final String BASE_URL = "https://www.filmladder.nl/";
-    private static final String PATH_FILMS = "/films";
+    private static final String PATH_FILMS = "films/nu-in-de-bioscoop";
 
     @Autowired
     private HtmlToMovieConverter htmlToMovieConverter;
@@ -32,7 +32,11 @@ public class MovieScraperService extends BaseETL<String, Document, List<Movie>> 
     @Autowired
     private MovieRepository movieRepository;
 
-    @Autowired MovieDetailsRESTService movieDetailsRESTService;
+    @Autowired
+    private MovieDetailsRESTService movieDetailsRESTService;
+
+    @Autowired
+    private ScreeningScraperService screeningScraperService;
 
 
     public void updateMovies() {
@@ -41,18 +45,17 @@ public class MovieScraperService extends BaseETL<String, Document, List<Movie>> 
         movieRepository.findAll().flatMap(m -> movieRepository.delete(m)).blockLast();
 
         //Then insert new ones
-        for (String city : cities) {
-            extractTransformLoad(city);
-        }
+        extractTransformLoad();
+
     }
 
     @Override
-    public Document extract(final String city) {
+    public Document extract() {
 
         Document html = new Document("");
 
         try {
-            html = Jsoup.connect(BASE_URL + city + PATH_FILMS).get();
+            html = Jsoup.connect(BASE_URL + PATH_FILMS).get();
         } catch (IOException e) {
             log.error(ERROR_COLLECTING_MOVIE_DATA, e);
         }
@@ -66,9 +69,9 @@ public class MovieScraperService extends BaseETL<String, Document, List<Movie>> 
         final List<Movie> result = htmlToMovieConverter.convert(extractedData);
 
         for (Movie movie : result) {
-            movie.setMovieDetails(movieDetailsRESTService.extractMovieDetailsByTitle(movie.getTitle()));
+            movie.setMovieDetails(movieDetailsRESTService.extractMovieDetailsByMovieTitle(movie.getTitle()));
+            movie.setScreenings(screeningScraperService.extractScreeningsByMovieTitle(movie));
         }
-
         return result;
     }
 

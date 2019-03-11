@@ -1,4 +1,4 @@
-package nl.reactivemoviesrest.service.movie;
+package nl.reactivemoviesrest.service.moviesdetails;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -22,7 +22,7 @@ public class MovieDetailsRESTService {
     private String movieDetailsRestUrl;
 
 
-    public MovieDetails extractMovieDetailsByTitle(final String movieTitle) {
+    public MovieDetails extractMovieDetailsByMovieTitle(final String movieTitle) {
 
         MovieDetails result;
 

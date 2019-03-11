@@ -1,17 +1,12 @@
 package nl.reactivemoviesrest.service.movie;
 
-import nl.reactivemoviesrest.data.document.Cinema;
 import nl.reactivemoviesrest.data.document.Movie;
-import nl.reactivemoviesrest.data.document.Screening;
-import nl.reactivemoviesrest.util.MoviesDateUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,117 +17,41 @@ import java.util.stream.Collectors;
 @Service
 public class HtmlToMovieConverter {
 
-    private static final String MOVIE_CONTAINER_CLASS = "city-movie";
-    private static final String CINIMAS_CONTAINER_CLASS = "hall-container";
-    private static final String CINEMA_TITLE_CLASS = "cinema-link";
-    private static final String ATTRIBUTE_KEY_ITEM_PROP = "itemprop";
-    private static final String ATTRIBUTE_KEY_CONTENT = "content";
-    private static final String ATTRIBUTE_VALUE_START_DATE = "startDate";
+    private static final String MOVIE_CONTAINER_CLASS = "movies";
+    private static final String HTML_TAG_UL = "ul";
+    private static final String HTML_TAG_LI = "li";
 
 
     public List<Movie> convert(final Document htmlDocument) {
 
-        final Elements singleMovieElements = htmlDocument.getElementsByClass(MOVIE_CONTAINER_CLASS);
-        final String city = htmlDocument.location().substring("https://www.filmladder.nl/".length(), htmlDocument.location().lastIndexOf("/"));
+        List<Movie> movieDocuments = new ArrayList<>();
 
-        final List<Movie> movieDocuments = singleMovieElements
+        final Optional<Element> allMoviesElementOptional = htmlDocument.getElementsByClass(MOVIE_CONTAINER_CLASS)
                 .stream()
-                .map(s -> convertToMovieDocument(s, city))
-                .collect(Collectors.toList());
+                .filter(e -> HTML_TAG_UL.equalsIgnoreCase(e.tag().getName()))
+                .findFirst();
+
+        if (allMoviesElementOptional.isPresent()) {
+            movieDocuments = allMoviesElementOptional.get()
+                    .getElementsByTag(HTML_TAG_LI)
+                    .stream()
+                    .map(s -> convertToMovieDocument(s))
+                    .filter(m -> StringUtils.isNotBlank(m.getTitle()))
+                    .collect(Collectors.toList());
+        }
 
         return movieDocuments;
     }
 
 
-    private Movie convertToMovieDocument(final Element singleMovieElement, final String city) {
-        final Movie movie = convertMovie(singleMovieElement);
-        movie.setScreenings(convertScreenings(singleMovieElement, city));
-        return movie;
-    }
-
-    private Movie convertMovie(final Element singleMovieElement) {
+    private Movie convertToMovieDocument(final Element singleMovieElement) {
 
         final Movie movie = new Movie();
 
-        final Optional<String> titleElement = singleMovieElement.getElementsByClass(CINEMA_TITLE_CLASS)
-                .stream()
-                .map(s -> s.text())
-                .findFirst();
-        movie.setTitle(titleElement.isPresent() ? titleElement.get() : null);
+        movie.setTitle(singleMovieElement.attr("data-name"));
+        movie.setScreeningsOverviewUrl(singleMovieElement.getElementsByAttributeValue("itemprop", "url").attr("href"));
 
         return movie;
     }
-
-    private List<Screening> convertScreenings(final Element singleMovieElement, final String city) {
-
-        final List<Screening> screenings = new ArrayList<>();
-
-        final Elements cinemaAndScreeningsElements = singleMovieElement.getElementsByClass(CINIMAS_CONTAINER_CLASS);
-
-        for (Element cinemaAndScreeningsElement : cinemaAndScreeningsElements) {
-
-            final Optional<String> cinemaOptional = cinemaAndScreeningsElement.getElementsByClass(CINEMA_TITLE_CLASS)
-                    .stream()
-                    .map(el -> el.text())
-                    .findFirst();
-
-            if (cinemaOptional.isPresent()) {
-                final Cinema cinema = new Cinema();
-                cinema.setName(cinemaOptional.get());
-                cinema.setCity(city);
-                screenings.addAll(convertScreeningsForSingleCinema(cinemaAndScreeningsElement, cinema));
-            }
-        }
-
-        sortScreeningsByStartDateTimeAscending(screenings);
-
-        return screenings;
-    }
-
-    private List<Screening> convertScreeningsForSingleCinema(final Element singleCinemaAndScreeningsElement, final Cinema cinema) {
-
-        final Screening screening = new Screening();
-        screening.setCinema(cinema);
-
-        final List<Screening> screenings = singleCinemaAndScreeningsElement.getElementsByAttributeValue(ATTRIBUTE_KEY_ITEM_PROP, ATTRIBUTE_VALUE_START_DATE)
-                .stream()
-                .map(el -> el.attr(ATTRIBUTE_KEY_CONTENT))
-                .map(st -> buildScreening(st, cinema))
-                .filter(sc -> sc != null)
-                .collect(Collectors.toList());
-
-        return screenings;
-    }
-
-    private Screening buildScreening(final String startDateTimestring, final Cinema cinema) {
-
-        Screening screening = null;
-        final String formattedStartDateTimeString = MoviesDateUtil.validateAndClearOfTimezone(startDateTimestring);
-
-        if (StringUtils.isNotBlank(formattedStartDateTimeString)) {
-            screening = new Screening();
-            screening.setCinema(cinema);
-            screening.setStartDateTime(formattedStartDateTimeString);
-        }
-
-        return screening;
-
-    }
-
-    private void sortScreeningsByStartDateTimeAscending(List<Screening> screenings) {
-
-        Collections.sort(screenings, (s1, s2) -> {
-
-            if (s1 == null || s1.getStartDateTime() == null) {
-                return -1;
-            } else if (s2 == null || s2.getStartDateTime() == null) {
-                return 1;
-            } else {
-                return MoviesDateUtil.parse(s1.getStartDateTime()).before(MoviesDateUtil.parse(s2.getStartDateTime())) ? -1 : 1;
-            }
-        });
-
-    }
-
 
 }

@@ -22,6 +22,8 @@ public class Movie {
 
     private String title;
 
+    private String screeningsOverviewUrl;
+
     private MovieDetails movieDetails;
 
     private String trailerLink;

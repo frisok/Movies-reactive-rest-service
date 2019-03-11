@@ -6,7 +6,7 @@ package nl.reactivemoviesrest.service.etl;
 public interface ETL<I,E, T> {
 
 
-    E extract(I input);
+    E extract();
 
     T transform(E extractedData);
 

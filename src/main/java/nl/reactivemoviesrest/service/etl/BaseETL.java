@@ -6,9 +6,9 @@ package nl.reactivemoviesrest.service.etl;
 public abstract class BaseETL<I, E, T> implements ETL<I,E, T> {
 
 
-    public final void extractTransformLoad(final I input) {
+    public final void extractTransformLoad() {
 
-        final E e = extract(input);
+        final E e = extract();
         final T t = transform(e);
         load(t);
     }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/updatemovies")
+@CrossOrigin(origins = {"http://localhost","http://localhost:4200","http://85.214.209.74"})
 public class UpdateMoviesController {
 
 
@@ -26,7 +27,7 @@ public class UpdateMoviesController {
      * Example request: curl -XPOST -H 'Authorization: 95de3112-59f6-4851-a072-d12d83fa077a' http://localhost:8080/updatemovies
      */
     @PostMapping
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = {"http://localhost","http://localhost:4200","http://85.214.209.74"})
     public HttpEntity<String> updateAllMovies() {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         movieScraperService.updateMovies();

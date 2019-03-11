@@ -36,18 +36,18 @@ public class HtmlToMovieConverterTest {
     @Test
     public void shouldConvertHtmlToMovieList() throws IOException {
 
-        final Document html = Jsoup.parse(new File("src/test/resources/filmladder_amsterdam_page_20180905.txt"), "UTF-8");
+        final Document html = Jsoup.parse(new File("src/test/resources/filmladder_all_movies_page_20190311.txt"), "UTF-8");
 
         final List<Movie> result = htmlToMovieConverter.convert(html);
 
-        Assert.assertThat(result.size(), Is.is(118));
+        Assert.assertThat(result.size(), Is.is(189));
     }
 
 
     @Test
     public void alleConvertedScreeningsShouldUnique() throws IOException {
 
-        final Document html = Jsoup.parse(new File("src/test/resources/filmladder_amsterdam_page_20180905.txt"), "UTF-8");
+        final Document html = Jsoup.parse(new File("src/test/resources/filmladder_all_movies_page_20190311.txt"), "UTF-8");
 
         final List<Movie> result = htmlToMovieConverter.convert(html);
 
