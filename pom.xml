@@ -5,7 +5,7 @@
 
     <groupId>nl.kulk</groupId>
     <artifactId>reactive-movies-rest</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <name>reactive-movies-rest</name>

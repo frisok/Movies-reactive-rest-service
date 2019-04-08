@@ -13,6 +13,7 @@ import java.util.Optional;
  *
  */
 @RestController
+@CrossOrigin(origins = {"http://localhost","http://localhost:4200","http://85.214.209.74","http://friso.amsterdam"})
 public class LoginController {
 
     @Autowired
@@ -36,7 +37,6 @@ public class LoginController {
      * Example request: curl -H "Content-Type: application/json" -XPOST -d '{"username":"admin","password":"admin"}' http://localhost:8080/login
      */
     @PostMapping("/login")
-    @CrossOrigin(origins = {"http://localhost","http://localhost:4200","http://85.214.209.74"})
     ResponseEntity<String> login(@RequestBody final UsernamePassword usernamePassword) {
 
         final Optional<String> result = authentication

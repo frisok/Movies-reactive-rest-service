@@ -27,6 +27,7 @@ import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatc
 @RestController
 @RequestMapping("/movies")
 @Slf4j
+@CrossOrigin(origins = {"http://localhost","http://localhost:4200","http://85.214.209.74","http://friso.amsterdam"})
 public class MovieController {
 
     @Autowired
@@ -34,20 +35,17 @@ public class MovieController {
 
 
     @GetMapping()
-    @CrossOrigin(origins = {"http://localhost","http://localhost:4200","http://85.214.209.74"})
     public ResponseEntity<Flux<Movie>> findAll() {
         return new ResponseEntity(movieRepository.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{city}")
-    @CrossOrigin(origins = {"http://localhost","http://localhost:4200","http://85.214.209.74"})
     public ResponseEntity<Flux<Movie>> findByCity(@PathVariable("city") String city) {
         final Flux<Movie> result = StringUtils.equalsIgnoreCase(city, "all") ? movieRepository.findAll() : movieRepository.findByScreeningsCinemaCity(city);
         return new ResponseEntity(result, HttpStatus.OK);
     }
 
     @GetMapping("/paginated")
-    @CrossOrigin(origins = {"http://localhost","http://localhost:4200","http://85.214.209.74"})
     public ResponseEntity<Flux<Movie>> findPaginatedByCity(@RequestParam(value = "city", required = true) String city,
                                                            @RequestParam(value = "pageIndex", required = true) int pageIndex,
                                                            @RequestParam(value = "pageSize", required = true) int pageSize) {
@@ -57,7 +55,6 @@ public class MovieController {
     }
 
     @GetMapping("/count")
-    @CrossOrigin(origins = {"http://localhost","http://localhost:4200","http://85.214.209.74"})
     public ResponseEntity<Mono<Long>> countByCity(@RequestParam(value = "city", required = true) String city) {
         final Mono<Long> result = StringUtils.equalsIgnoreCase(city, "all") ? movieRepository.countByScreeningsCinemaCityNot(city) : movieRepository.countByScreeningsCinemaCity(city);
         return new ResponseEntity(result, HttpStatus.OK);
@@ -72,7 +69,6 @@ public class MovieController {
      * @return
      */
     @GetMapping("/search")
-    @CrossOrigin(origins = {"http://localhost:4200","http://85.214.209.74"})
     public Flux<Movie> findByFilter(@RequestParam(value = "title", required = false) String title,
                                     @RequestParam(value = "city", required = false) String city,
                                     @RequestParam(value = "start_date", required = false) @DateTimeFormat(pattern = "dd-MM-yyyy") Date startDate,
@@ -90,7 +86,6 @@ public class MovieController {
      * @return
      */
     @GetMapping("/title")
-    @CrossOrigin(origins = {"http://localhost:4200","http://85.214.209.74"})
     public ResponseEntity<Flux<Movie>> findByTitle(@RequestParam("title") String title) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();

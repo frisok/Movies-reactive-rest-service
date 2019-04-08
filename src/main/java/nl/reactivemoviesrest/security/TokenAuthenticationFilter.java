@@ -28,8 +28,7 @@ final class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFi
     @Override
     public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response) {
 
-        final String param = ofNullable(request.getHeader(AUTHORIZATION))
-                .orElse(request.getParameter("t"));
+        final String param = ofNullable(request.getHeader(AUTHORIZATION)).get();
 
         final String token = ofNullable(param)
                 .map(String::trim)
